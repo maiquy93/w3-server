@@ -2,7 +2,6 @@ const koa = require("koa");
 const Router = require("koa-router");
 var bodyParser = require("koa-body");
 const db = require("./utils/index");
-const { PageNumberPaginator } = require("koa-mongoose-paginate");
 const devicesModel = require("./models/devices");
 const usersModel = require("./models/users");
 const logsModel = require("./models/logs");
@@ -30,7 +29,6 @@ router.get("/devices", async ctx => {
 
 //add devies
 router.post("/adddevice", async ctx => {
-  console.log(ctx.request.body);
   const newDevice = new devicesModel(ctx.request.body);
   await newDevice.save();
   ctx.body = true;
@@ -46,6 +44,20 @@ router.post("/login/request", async ctx => {
     if (user.password === ctx.request.body.password) ctx.body = true;
     else ctx.body = false;
   } else ctx.body = false;
+});
+
+//check account exist
+router.post("/checkacc", async ctx => {
+  const res = await usersModel.findOne({ username: ctx.request.body.username });
+  if (res) ctx.body = false;
+  else ctx.body = true;
+});
+
+//create new account
+router.post("/createnewacc", async ctx => {
+  const newUser = new usersModel(ctx.request.body);
+  await newUser.save();
+  ctx.body = true;
 });
 
 //get device logs
